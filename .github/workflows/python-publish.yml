@@ -22,18 +22,27 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+    
     - name: Set up Python
       uses: actions/setup-python@v3
       with:
         python-version: '3.x'
+        
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install build
+        pip install setuptools wheel
+        
     - name: Build package
-      run: python -m build
+      run: |
+          python3 setup.py sdist
+          python3 setup.py bdist_wheel        
+      
     - name: Publish package
-      uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
-      with:
-        user: __token__
-        password: ${{ secrets.PYPI_API_TOKEN }}
+      run: |
+        git config --global user.email "action@github.com"
+        git config --global user.name "GitHub Action"
+        git add -f ./dist/*.whl
+        git commit -m 'pushing new wheel'
+        git push
