@@ -6,5 +6,6 @@ setup(
     package_dir={"": "src/virshstat"},
     py_modules=['virshstat'],
     include_package_data=True,
-    install_requires=['']
+    install_requires=[''],
+    long_description=readme
 )
