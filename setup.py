@@ -11,5 +11,5 @@ setup(
     py_modules=['virshstat'],
     include_package_data=True,
     install_requires=[''],
-    long_description=readme()
+    long_description=''
 )
