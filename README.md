@@ -1,18 +1,20 @@
 # virshstat
 
-sample python to upgrade f/w
-
 ## Detail
 
-A single python scripts which ...
+A single python script which ...
 1. Runs virsh domstat
-2. Summarize load data
-3. Print in TUI table format
+2. Summarizes load data
+3. Prints in TUI table format
 
-The artifacts section of this CI/CD build provides
-- rpm
-- tar.gz
-- md5sum.txt
+## Install
+
+1. Download and install
+  - Download whl file from : https://github.com/wabuntu/virshstat/tree/main/dist
+  - pip3 install  --no-deps ./virshstat-*.whl
+
+2. Or just copy .py file from 
+  - https://github.com/wabuntu/virshstat/tree/main/src/virshstat
 
 ## Example
 
