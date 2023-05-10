@@ -33,16 +33,14 @@ jobs:
         python -m pip install --upgrade pip
         pip install build
         pip install setuptools wheel
-        
+
     - name: Build package
       run: |
           python3 setup.py sdist
           python3 setup.py bdist_wheel        
-      
+
     - name: Publish package
       run: |
-#        git config --global user.email "action@github.com"
-#        git config --global user.name "GitHub Action"
         git add -f ./dist/*.whl
         git commit -m 'pushing new wheel'
         git push
