@@ -5,22 +5,9 @@
 A single python script which ...
 1. Runs virsh domstat
 2. Summarizes load data
-3. Prints in TUI table format
+3. Prints in CLI table format
 
-## Install
-
-1. Download and install
-  - Download whl file from : https://github.com/wabuntu/virshstat/tree/main/dist
-  - pip3 install  --no-deps ./virshstat-*.whl
-
-2. Or just copy .py file from 
-  - https://github.com/wabuntu/virshstat/tree/main/src/virshstat
-
-## Example
-
-vm000000000000001
-
-Example result
+Example
 ```
 % python ./virshstat.py comp-node0
                      comp-node0                      
@@ -38,5 +25,13 @@ Example result
 │ vm000000000000009 │      171361 │               0 │         5991 │
 │ vm000000000000010 │       36385 │            1289 │         3816 │
 └───────────────────┴─────────────┴─────────────────┴──────────────┘
-
 ```
+
+## Install
+
+1. Download and install
+  - Download whl file from : https://github.com/wabuntu/virshstat/tree/main/dist
+  - pip3 install  --no-deps ./virshstat-*.whl
+
+2. Or just copy .py file from 
+  - https://github.com/wabuntu/virshstat/tree/main/src/virshstat
