@@ -9,7 +9,7 @@ A single python script which ...
 
 Example
 ```
-% python ./virshstat.py comp-node0
+% python -m virshstat comp-node0
                      comp-node0                      
 ┏━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┓
 ┃            Domain ┃ CPU Time(G) ┃ Network R/W(GB) ┃ Disk R/W(GB) ┃
@@ -31,7 +31,7 @@ Example
 
 1. Download and install
   - Download whl file from : https://github.com/wabuntu/virshstat/tree/main/dist
-  - pip3 install  --no-deps ./virshstat-*.whl
-
+  - pip3 install ./virshstat-*.whl
+  - python -m virshstat COMPUTENODE
 2. Or just copy .py file from 
   - https://github.com/wabuntu/virshstat/tree/main/src/virshstat
