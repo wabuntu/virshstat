@@ -18,7 +18,6 @@ UNIT = 1000000000
 
 
 def run_command(cmd):
-    print(cmd)
     lines = ""
     result = subprocess.run(cmd,
                             capture_output=True,
@@ -55,10 +54,9 @@ def main():
 
     lines = run_command(['ssh', args.host, 'sudo virsh domstats --cpu-total --interface --block'])
 
-    table = create_table(args.host, ["Domain", "CPU Time(G)", "Network R/W(GB)", "Disk R/W(GB)"])
-
+    table = create_table(args.host, ["Domain", "CPU(G)", "Net(GB)", "I/O(GB)", "Disk(GB)"])
     node = ""
-    cpu, net, disk = 0, 0, 0
+    cpu, net, block, alloc, capa = 0, 0, 0, 0, 0
     index = -1
     bytes = []
     nodes = []
@@ -69,11 +67,11 @@ def main():
         index = line.find('Domain: ')
         if index >= 0:
             if len(node):
-                table.add_row(node, str(cpu), str(net), str(disk))
-                nodes.append([node, str(cpu), str(net), str(disk)])
+                table.add_row(node, str(cpu), str(net), str(block), str(alloc)+'/'+str(capa))
+                nodes.append([node, str(cpu), str(net), str(block), str(alloc)+'/'+str(capa)])
                 cnt += 1
             node = line[len('Domain: ')+1:-2]
-            cpu, net, disk = 0, 0, 0
+            cpu, net, block, alloc, capa = 0, 0, 0, 0, 0
             index = -1
             continue
 
@@ -91,7 +89,19 @@ def main():
 
         bytes = re.findall(r'block\.[0-9].*\.bytes=([0-9]+)', line)
         if len(bytes) > 0:
-            disk += int(bytes[0]) // UNIT
+            block += int(bytes[0]) // UNIT
+            bytes = []
+            continue
+
+        bytes = re.findall(r'block\.[0-9]\.allocation=([0-9]+)', line)
+        if len(bytes) > 0:
+            alloc += int(bytes[0]) // UNIT
+            bytes = []
+            continue
+
+        bytes = re.findall(r'block\.[0-9]\.capacity=([0-9]+)', line)
+        if len(bytes) > 0:
+            capa += int(bytes[0]) // UNIT
             bytes = []
             continue
 
@@ -101,7 +111,7 @@ def main():
     # pdb.set_trace()
 
     for node in nodes:
-        print('To get VM name: openstack server list --instance-name ' + node[0] + ' -c Name -f value  --all-projects')
+        print('To get VM name: openstack server list -c Name -f value --all-projects --instance-name ' + node[0])
 
 
 def test_main():
