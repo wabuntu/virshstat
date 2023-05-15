@@ -17,6 +17,27 @@ import textwrap
 UNIT = 1000000000
 
 
+def run_command(cmd):
+    print(cmd)
+    lines = ""
+    result = subprocess.run(cmd,
+                            capture_output=True,
+                            text=True)
+    lines = format(result.stdout)
+    with open('dump.txt', mode='w') as f:
+        f.writelines(lines)
+    with open('dump.txt', mode='r') as f:
+        lines = f.readlines()
+    return lines
+
+
+def create_table(host, columns):
+    table = Table(title=host)
+    for column in columns:
+        table.add_column(column, justify='right')
+    return table
+
+
 def main():
 
     parser = argparse.ArgumentParser(
@@ -32,58 +53,55 @@ def main():
     parser.add_argument('-p', help='Port number', type=int, default=22)
     args = parser.parse_args()
 
-    result = subprocess.run(['ssh',
-                            args.host,
-                            'sudo virsh domstats --cpu-total --interface --block'],
-                            capture_output=True,
-                            text=True)
-    lines = format(result.stdout)
-    if len(lines) < 1:
-        exit
+    lines = run_command(['ssh', args.host, 'sudo virsh domstats --cpu-total --interface --block'])
 
-    with open('dump.txt', mode='w') as f:
-        f.writelines(lines)
-    with open('dump.txt', mode='r') as f:
-        lines = f.readlines()
+    table = create_table(args.host, ["Domain", "CPU Time(G)", "Network R/W(GB)", "Disk R/W(GB)"])
 
-    table = Table(title=args.host)
-    columns = ["Domain", "CPU Time(G)", "Network R/W(GB)", "Disk R/W(GB)"]
-    for column in columns:
-        table.add_column(column, justify='right')
-
-    row = ["", 0, 0, 0]
+    node = ""
+    cpu, net, disk = 0, 0, 0
     index = -1
     bytes = []
+    nodes = []
+    cnt = 0
+
     for line in lines:
         #        pdb.set_trace()
         index = line.find('Domain: ')
         if index >= 0:
-            if len(row[0]):
-                table.add_row(row[0], str(row[1]), str(row[2]), str(row[3]))
-            row = [line[len('Domain: ')+2:-2], 0, 0, 0]
+            if len(node):
+                table.add_row(node, str(cpu), str(net), str(disk))
+                nodes.append([node, str(cpu), str(net), str(disk)])
+                cnt += 1
+            node = line[len('Domain: ')+1:-2]
+            cpu, net, disk = 0, 0, 0
             index = -1
             continue
 
         index = line.find('cpu.time=')
         if index >= 0:
-            row[1] = int(line[len('cpu.time=')+2:]) // UNIT
+            cpu = int(line[len('cpu.time=')+2:]) // UNIT
             index = -1
             continue
 
         bytes = re.findall(r'net\.[0-9].*\.bytes=([0-9]+)', line)
         if len(bytes) > 0:
-            row[2] += int(bytes[0]) // UNIT
+            net += int(bytes[0]) // UNIT
             bytes = []
             continue
 
         bytes = re.findall(r'block\.[0-9].*\.bytes=([0-9]+)', line)
         if len(bytes) > 0:
-            row[3] += int(bytes[0]) // UNIT
+            disk += int(bytes[0]) // UNIT
             bytes = []
             continue
 
     console = Console()
     console.print(table)
+
+    # pdb.set_trace()
+
+    for node in nodes:
+        print('To get VM name: openstack server list --instance-name ' + node[0] + ' -c Name -f value  --all-projects')
 
 
 def test_main():
